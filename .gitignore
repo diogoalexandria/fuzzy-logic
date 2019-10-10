@@ -1,2 +1,5 @@
 # Ignorando node_modules
 node_modules/
+
+# Ignorando debug.log
+debug.log
