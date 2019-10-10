@@ -3,12 +3,10 @@ var positionY = 35;
 
 function setup() {
     // Cria canvas   
-    createCanvas(560, 560);
-    ;      
+    createCanvas(560, 560);          
 }
   
-function draw() {
-    //
+function draw() {    
     background(0, 0, 0);
     // Arena com fundo preto e linhas branca
     fill(0, 0, 0);
