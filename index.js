@@ -3,7 +3,8 @@ var positionY = 35;
 
 function setup() {
     // Cria canvas   
-    createCanvas(560, 560);          
+    createCanvas(560, 560);
+    CreateBoard();
 }
   
 function draw() {    
