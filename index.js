@@ -20,20 +20,25 @@ function draw() {
     // Saída    
     rect(530, 510, 20, 20);
 
-    // Robô
-    fill(100)
+    
     if (positionX < 30) {
+        // Se tá dentro da área de entrada anda para direita
         xAxisMoviment();
     }
     else if (positionX + 10 < 520) {
+        // Anda em diagonal
         xAxisMoviment();
         yAxisMoviment();
     }
     else if (positionX + 10 < 545 ) {
+        // Se chegou a 5 pixels do final anda só a direita
         xAxisMoviment();
     }
     // xAxisMoviment();
     // yAxisMoviment();
+
+    // Robô
+    fill(100)
     rect(positionX, positionY, 10, 10);
 }
 
