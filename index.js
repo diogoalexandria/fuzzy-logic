@@ -8,6 +8,7 @@ var start;
 var end;
 var currentPosition;
 var lastMoviment;
+var qtdMoviment = 0;
 var path = [];
 
 function Spot(i, j) {
@@ -17,7 +18,7 @@ function Spot(i, j) {
     this.wall = false;
     this.visited = false;
 
-    if (random(1) < 0.1) {
+    if (random(1) < 0.2) {
         this.wall = true;
     }
 
@@ -44,18 +45,79 @@ function Spot(i, j) {
             this.neighbors.push(grid[this.x][this.y - 1]);
         }
         if (this.x > 0 && this.y > 0) {
-            this.neighbors.push(grid[this.x - 1][this.y - 1])
+            this.neighbors.push(grid[this.x - 1][this.y - 1]);
         }
         if (this.x > columns - 1 && this.y > 0) {
-            this.neighbors.push(grid[this.x + 1][this.y - 1])
+            this.neighbors.push(grid[this.x + 1][this.y - 1]);
         }
         if (this.x > 0 && this.y > rows - 1) {
-            this.neighbors.push(grid[this.x - 1][this.y + 1])
+            this.neighbors.push(grid[this.x - 1][this.y + 1]);
         }
         if (this.x > columns - 1 && this.y > rows - 1) {
-            this.neighbors.push(grid[this.x + 1][this.y + 1])
+            this.neighbors.push(grid[this.x + 1][this.y + 1]);
         }
     }
+
+    this.getDownPosition = function() {
+        if (this.y + 1 < rows - 1) {
+            let downPosition = grid[this.x][this.y + 1]
+            return downPosition;
+        } else {
+            return null;
+        }        
+    }
+    this.getRightPosition = function() {
+        if (this.x + 1 < columns - 1) {
+            let rightPosition = grid[this.x + 1][this.y];
+            return rightPosition;
+        } else {
+            return null;
+        }        
+    }
+    this.getUpPosition = function() {
+        if (this.y - 1 > 0) {
+            let upPosition = grid[this.x][this.y - 1];        
+            return upPosition;
+        } else {
+            return null;
+        }        
+    }
+    this.getLeftPosition = function() {
+        if (this.x - 1 > 0) {
+            let leftPosition = grid[this.x - 1][this.y];
+            return leftPosition;
+        } else {
+            return null;
+        }             
+    }
+    
+    
+    this.isAvailable = function(position) {
+        if (position && !position.visited && !position.wall) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+function Grid(rows, columns) {
+    this.rows = rows
+    this.columns = columns
+    this.matrix = new Array(columns)
+    for (let i = 0; i < columns; i++) {
+        this.matrix[i] = new Array(rows);
+    }
+
+    for (var i = 0; i < columns; i++) {
+        for (var j = 0; j < rows; j++) {
+            this.matrix[i][j] = new Spot(i, j);
+        }
+    }
+
+    this.getSpot = function(x, y) {
+        return this.matrix[x][y]
+    }    
 }
 
 function setup() {
@@ -64,7 +126,7 @@ function setup() {
     widthSpotArena = width / columns;
     heightSpotArena = height / rows;
 
-    // Criando a matriz
+    //Criando a matriz
     for (var i = 0; i < columns; i++) {
         grid[i] = new Array(rows);
     };
@@ -96,32 +158,52 @@ function draw() {
         noLoop();
     }
 
-    var downPosition = grid[currentPosition.x][currentPosition.y + 1];
-    var rightPosition = grid[currentPosition.x + 1][currentPosition.y];
-    var upPosition = grid[currentPosition.x][currentPosition.y - 1];
-    // var leftPosition = grid[currentPosition.x - 1][currentPosition.y];
+    let downPosition = currentPosition.getDownPosition();
+    let rightPosition =  currentPosition.getRightPosition();
+    let upPosition = currentPosition.getUpPosition();
+    let leftPosition = currentPosition.getLeftPosition();
 
-    var availableDownPosition = downPosition ? downPosition.visited === false && downPosition.wall === false : false;
-    var availableRightPosition = rightPosition.visited === false && rightPosition.wall === false;
-    var availableUpPosition = upPosition ? upPosition.visited === false && upPosition.wall === false : false;
-    // var availableLeftPosition = leftPosition? 
+    console.log(downPosition,rightPosition,upPosition, leftPosition);
 
-    if (availableDownPosition && lastMoviment != 1) {
+    let downPositionIsAvailable = currentPosition.isAvailable(downPosition);
+    let rightPositionIsAvailable = currentPosition.isAvailable(rightPosition);
+    let upPositionIsAvailable = currentPosition.isAvailable(upPosition);
+    let leftPositionIsAvailable = currentPosition.isAvailable(leftPosition);
+
+    qtdMoviment++;
+
+    console.log(downPositionIsAvailable, rightPositionIsAvailable, upPositionIsAvailable, leftPositionIsAvailable);
+    console.log(qtdMoviment);
+    console.log(lastMoviment);
+
+    noLoop();   
+
+    if (downPositionIsAvailable && lastMoviment != 'down' && lastMoviment != 'up') {
         path.push(currentPosition);
+        currentPosition.visited = true;
         currentPosition = downPosition;
-        lastMoviment = 1;
-    } else if (availableRightPosition) {
+        lastMoviment = 'down';
+    } else if (rightPositionIsAvailable) {
         path.push(currentPosition);
+        currentPosition.visited = true;
         currentPosition = rightPosition;
-        lastMoviment = 2;
-    } else if (availableDownPosition) {
+        lastMoviment = 'right';
+    } else if (downPositionIsAvailable && lastMoviment != 'up') {       
         path.push(currentPosition);
+        currentPosition.visited = true;
         currentPosition = downPosition;
-        lastMoviment = 1;
-    } else if (availableUpPosition) {
+        lastMoviment = 'down';
+    } else if (upPositionIsAvailable) {        
         path.push(currentPosition);
+        currentPosition.visited = true;
         currentPosition = upPosition;
-        lastMoviment = 1;
+        lastMoviment = 'up';        
+    } else if (leftPositionIsAvailable) {
+        path.push(currentPosition);
+        currentPosition.visited = true;
+        currentPosition = leftPosition;
+        lastMoviment = 'left';
+
     }
 
     for (var i = 0; i < columns; i++) {
@@ -134,27 +216,5 @@ function draw() {
         path[i].show(color(255, 0, 0));
     }
 
-    // for (var i = 0; i < openSet.length; i++) {
-    //     currentPosition.show(color(0,255,0))
-    // }
-
-    currentPosition.show(color(0, 255, 0));
-
-
-    // for (var i = 0; i < path.length; i++) {
-    //     path[i].show(color(0, 0, 255));
-    // }
+    currentPosition.show(color(0, 255, 0));    
 }
-
-// var moviment= function(currentPosition, locationMoviment, pathTavaled) {
-//     pathTraveled.push(currentPosition);
-//     currentPosition = downPosition;
-// }
-
-// function xAxisMoviment() {
-//     positionX = positionX + 1;
-// }
-
-// function yAxisMoviment() {
-//     positionY = positionY + 1;
-// }
