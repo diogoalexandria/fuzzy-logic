@@ -1,5 +1,5 @@
-var columns = 15;
-var rows = 15;
+var columns = 50;
+var rows = 50;
 var grid = new Array(columns);
 
 var widthArena;
@@ -76,7 +76,7 @@ function Spot(i, j) {
         }        
     }
     this.getUpPosition = function() {
-        if (this.y - 1 > 0) {
+        if (this.y - 1 >= 0) {
             let upPosition = grid[this.x][this.y - 1];        
             return upPosition;
         } else {
@@ -84,7 +84,7 @@ function Spot(i, j) {
         }        
     }
     this.getLeftPosition = function() {
-        if (this.x - 1 > 0) {
+        if (this.x - 1 >= 0) {
             let leftPosition = grid[this.x - 1][this.y];
             return leftPosition;
         } else {
@@ -101,10 +101,12 @@ function Spot(i, j) {
     }
 
     this.isWall = function(position) {
-        if (position && !position.wall) {
+        if (position && position.wall) {
+            return true;
+        } else if(!position){
             return true;
         } else {
-            return false;
+            return false
         }
     }
 }
@@ -130,6 +132,8 @@ function Grid(rows, columns) {
 
 function setup() {
     createCanvas(500, 500);
+
+    frameRate(5);
 
     widthSpotArena = width / columns;
     heightSpotArena = height / rows;
@@ -185,12 +189,12 @@ function draw() {
     let leftPositionIsWall = currentPosition.isWall(leftPosition)
 
     qtdMoviment++;
-
+    console.log(currentPosition)
     console.log(`down:${downPositionIsAvailable}, right:${rightPositionIsAvailable}, up:${upPositionIsAvailable}, left:${leftPositionIsAvailable}`);
     console.log(qtdMoviment);
     console.log(lastMoviment);
 
-    // noLoop();   
+    noLoop();
 
     if (downPositionIsAvailable && lastMoviment != 'down' && lastMoviment != 'up' && finished === false) {
         path.push(currentPosition);
@@ -221,32 +225,34 @@ function draw() {
         currentPosition.visited = true;
         currentPosition = leftPosition;
         lastMoviment = 'left';
-        console.log("5"); 
-    } else if (!upPositionIsWall && lastMoviment != 'up' && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = upPosition;
-        lastMoviment = 'up';
-        console.log("6"); 
+        console.log("5");        
     } else if (!rightPositionIsWall && finished === false) {
         path.push(currentPosition);
         currentPosition.visited = true;
         currentPosition = rightPosition;
         lastMoviment = 'right';
-        console.log("7");
-    } else if (!leftPositionIsWall && finished === false) {
+        console.log("6");
+    } else if (!leftPositionIsWall && finished === false && lastMoviment != 'right') {
         path.push(currentPosition);
         currentPosition.visited = true;
         currentPosition = leftPosition;
         lastMoviment = 'left';
-        console.log("8");
-    } else if (!downPositionIsWall && finished === false) {
+        console.log("7");
+    } else if (!downPositionIsWall && finished === false && lastMoviment != 'up') {
         path.push(currentPosition);
         currentPosition.visited = true;
         currentPosition = downPosition;
         lastMoviment = 'down';
+        console.log("8");    
+    } else if (!upPositionIsWall && lastMoviment != 'up' && finished === false) {
+        path.push(currentPosition);
+        currentPosition.visited = true;
+        currentPosition = upPosition;
+        lastMoviment = 'up';
         console.log("9");
     }
+
+    // console.log(path);
 
     for (var i = 0; i < columns; i++) {
         for (var j = 0; j < rows; j++) {
@@ -257,6 +263,6 @@ function draw() {
     for (var i = 0; i < path.length; i++) {
         path[i].show(color(255, 0, 0));
     }
-
+    
     currentPosition.show(color(0, 255, 0));    
 }
