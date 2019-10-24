@@ -9,8 +9,13 @@ var end;
 var currentPosition;
 var lastMoviment;
 var qtdMoviment = 0;
+var downPositions;
+var rightPositions;
+var upPositions;
+var leftPositions;
 var path = [];
 var finished = false;
+
 
 function Spot(i, j) {
     this.x = i;
@@ -19,7 +24,7 @@ function Spot(i, j) {
     this.wall = false;
     this.visited = false;
 
-    if (random(1) < 0.3) {
+    if (random(1) < 0.25) {
         this.wall = true;
     }
 
@@ -44,19 +49,7 @@ function Spot(i, j) {
         }
         if (this.y > 0) {
             this.neighbors.push(grid[this.x][this.y - 1]);
-        }
-        if (this.x > 0 && this.y > 0) {
-            this.neighbors.push(grid[this.x - 1][this.y - 1]);
-        }
-        if (this.x > columns - 1 && this.y > 0) {
-            this.neighbors.push(grid[this.x + 1][this.y - 1]);
-        }
-        if (this.x > 0 && this.y > rows - 1) {
-            this.neighbors.push(grid[this.x - 1][this.y + 1]);
-        }
-        if (this.x > columns - 1 && this.y > rows - 1) {
-            this.neighbors.push(grid[this.x + 1][this.y + 1]);
-        }
+        }       
     }
 
     this.getDownPosition = function() {
@@ -171,10 +164,80 @@ function draw() {
         finished = true;
     }
 
-    let downPosition = currentPosition.getDownPosition();
-    let rightPosition =  currentPosition.getRightPosition();
-    let upPosition = currentPosition.getUpPosition();
-    let leftPosition = currentPosition.getLeftPosition();
+    downPositions = 0;
+    rightPositions = 0;
+    upPositions = 0;
+    leftPositions = 0;
+    let tempPosition;
+    let sensor = [];
+
+    tempPosition = currentPosition;
+    let downPosition;
+    for(i = 0; i < 5 ; i++) {
+        downPosition = tempPosition.getDownPosition();
+        if (downPosition && !downPosition.wall) {
+            downPositions++;
+            tempPosition = downPosition;
+        } else {
+            break;
+        }        
+    }
+    sensor.push(downPositions);
+    
+    tempPosition = currentPosition;    
+    let rightPosition;
+    for(i = 0; i < 5 ; i++) {
+        rightPosition = tempPosition.getRightPosition();
+        if (rightPosition && !rightPosition.wall) {
+            rightPositions++;
+            tempPosition = rightPosition;
+        } else {
+            break;
+        }        
+    }
+    sensor.push(rightPositions);
+
+    tempPosition = currentPosition;    
+    let upPosition;
+    for(i = 0; i < 5 ; i++) {
+        upPosition = tempPosition.getUpPosition();
+        if (upPosition && !upPosition.wall) {
+            upPositions++;
+            tempPosition = upPosition;
+        } else {
+            break;
+        }        
+    }
+    sensor.push(upPositions);
+
+    tempPosition = currentPosition;    
+    let leftPosition;
+    for(i = 0; i < 5 ; i++) {
+        leftPosition = tempPosition.getLeftPosition();
+        if (leftPosition && !leftPosition.wall) {
+            leftPositions++;
+            tempPosition = leftPosition;
+        } else {
+            break;
+        }        
+    }
+    sensor.push(leftPositions);
+
+    var bestChoice;
+    for (side of sensor) {
+        console.log(`side:${side}`)
+        if (!bestChoice || side > bestChoice) {
+            bestChoice = side;
+        }
+
+    }
+
+    console.log(bestChoice);
+    noLoop();
+
+
+    
+  
 
     console.log(`down:${downPosition},right:${rightPosition},up:${upPosition}, left:${leftPosition}`);
 
@@ -196,86 +259,87 @@ function draw() {
 
     // noLoop();
 
-    if (downPositionIsAvailable && lastMoviment != 'down' && lastMoviment != 'up' && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = downPosition;
-        lastMoviment = 'down';
-        console.log("1");
-    } else if (rightPositionIsAvailable && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = rightPosition;
-        lastMoviment = 'right';
-        console.log("2");
-    } else if (downPositionIsAvailable && lastMoviment != 'up' && finished === false) {       
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = downPosition;
-        lastMoviment = 'down';
-        console.log("3");
-    } else if (upPositionIsAvailable && finished === false) {        
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = upPosition;
-        lastMoviment = 'up';
-        console.log("4");        
-    } else if (leftPositionIsAvailable && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = leftPosition;
-        lastMoviment = 'left';
-        console.log("5");        
-    } else if (!rightPositionIsWall && finished === false && lastMoviment != 'left') {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = rightPosition;
-        lastMoviment = 'right';
-        console.log("6");
-    } else if (!downPositionIsWall && finished === false && lastMoviment != 'up') {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = downPosition;
-        lastMoviment = 'down';
-        console.log("7");    
-    } else if (!leftPositionIsWall && finished === false && lastMoviment != 'right') {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = leftPosition;
-        lastMoviment = 'left';
-        console.log("8");
-    } else if (!upPositionIsWall && lastMoviment != 'up' && lastMoviment != 'down'  && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = upPosition;
-        lastMoviment = 'up';
-        console.log("9");
-    } else if (!rightPositionIsWall && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = rightPosition;
-        lastMoviment = 'right';
-        console.log("11");    
-    } else if (!upPositionIsWall && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = upPosition;
-        lastMoviment = 'up';
-        console.log("12");   
-    } else if (!downPositionIsWall && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = downPosition;
-        lastMoviment = 'down';
-        console.log("10");    
-    } else if (!leftPositionIsWall && finished === false) {
-        path.push(currentPosition);
-        currentPosition.visited = true;
-        currentPosition = leftPosition;
-        lastMoviment = 'left';
-        console.log("13");   
-    }
+    
 
+    // if (downPositionIsAvailable && lastMoviment != 'down' && lastMoviment != 'up' && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = downPosition;
+    //     lastMoviment = 'down';
+    //     console.log("1");
+    // } else if (rightPositionIsAvailable && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = rightPosition;
+    //     lastMoviment = 'right';
+    //     console.log("2");
+    // } else if (downPositionIsAvailable && lastMoviment != 'up' && finished === false) {       
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = downPosition;
+    //     lastMoviment = 'down';
+    //     console.log("3");
+    // } else if (upPositionIsAvailable && finished === false) {        
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = upPosition;
+    //     lastMoviment = 'up';
+    //     console.log("4");        
+    // } else if (leftPositionIsAvailable && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = leftPosition;
+    //     lastMoviment = 'left';
+    //     console.log("5");        
+    // } else if (!rightPositionIsWall && finished === false && lastMoviment != 'left') {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = rightPosition;
+    //     lastMoviment = 'right';
+    //     console.log("6");
+    // } else if (!downPositionIsWall && finished === false && lastMoviment != 'up') {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = downPosition;
+    //     lastMoviment = 'down';
+    //     console.log("7");    
+    // } else if (!leftPositionIsWall && finished === false && lastMoviment != 'right') {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = leftPosition;
+    //     lastMoviment = 'left';
+    //     console.log("8");
+    // } else if (!upPositionIsWall && lastMoviment != 'up' && lastMoviment != 'down'  && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = upPosition;
+    //     lastMoviment = 'up';
+    //     console.log("9");
+    // } else if (!rightPositionIsWall && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = rightPosition;
+    //     lastMoviment = 'right';
+    //     console.log("11");    
+    // } else if (!upPositionIsWall && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = upPosition;
+    //     lastMoviment = 'up';
+    //     console.log("12");   
+    // } else if (!downPositionIsWall && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = downPosition;
+    //     lastMoviment = 'down';
+    //     console.log("10");    
+    // } else if (!leftPositionIsWall && finished === false) {
+    //     path.push(currentPosition);
+    //     currentPosition.visited = true;
+    //     currentPosition = leftPosition;
+    //     lastMoviment = 'left';
+    //     console.log("13");   
+    // }
 
     // console.log(path);
 
