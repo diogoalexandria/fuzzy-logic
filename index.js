@@ -224,13 +224,14 @@ function draw() {
     sensor.push(leftPositions);
 
     var bestChoice;
-    for (side of sensor) {
-        console.log(`side:${side}`)
+    sensor.forEach((side, index) => {
+        console.log(`side:${side}`);
+        console.log(`index:${index}`);
         if (!bestChoice || side > bestChoice) {
             bestChoice = side;
         }
-
-    }
+    });
+   
 
     console.log(bestChoice);
     noLoop();
